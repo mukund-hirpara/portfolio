@@ -1,13 +1,7 @@
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { Providers}  from './providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
-  title: 'Note Application',
-  description: 'A note-taking application with admin and user features',
-};
 
 export default function RootLayout({
   children,
@@ -16,8 +10,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body  className={inter.className}>
-        <Providers >{children}</Providers>
+      <body className={inter.className} style={{ margin: 0 }}>
+        {children}
       </body>
     </html>
   );
