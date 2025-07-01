@@ -5,6 +5,8 @@ import { Box, Typography, Button } from '@mui/material';
 import { styled, keyframes } from '@mui/material/styles';
 import Link from 'next/link';
 import MuiLink from '@mui/material/Link';
+import { ComponentSelector, Keyframes, SerializedStyles, CSSObject } from '@emotion/react';
+import { ArrayCSSInterpolation } from '@emotion/serialize';
 
 // 1. Keyframes for Animations
 
@@ -37,14 +39,22 @@ const circleExpandOutlined = keyframes`
   }
 `;
 
-const xBarInitial = keyframes`
-  0% { transform: translate(-50%, -50%) rotate(45deg) scale(0); opacity: 0; }
-  100% { transform: translate(-50%, -50%) rotate(45deg) scale(2 ); opacity: 1; width: 10px; height: 10px; }
+const xBarScaleUp = keyframes`
+  from {
+    transform: translate(-50%, -50%) scaleY(0);
+  }
+  to {
+    transform: translate(-50%, -50%) scaleY(1);
+  }
 `;
 
-const xBarFinalRotateScale = keyframes`
-  from { width: 10px; height: 10px; opacity: 1; }
-  to { width: 300px; height: 10px; opacity: 1; }
+const xBarRotate = (rotation: string | number | boolean | ComponentSelector | Keyframes | SerializedStyles | CSSObject | ArrayCSSInterpolation | null | undefined) => keyframes`
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(${rotation}deg);
+  }
 `;
 
 const statueEntrance = keyframes`
@@ -58,11 +68,69 @@ const statueFloat = keyframes`
   100% { transform: translate(-50%, -50%) scale(2); }
 `;
 
-const circularButtonReveal = keyframes`
-  0% { width: 0; height: 0; opacity: 0; background-color: #000; border-radius: 5px; transform: scale(0); }
-  40% { width: 120px; height: 40px; opacity: 1; background-color: #000; border-radius: 5px; transform: scale(1); }
-  70% { background-color: #fff; border-color: #000; border-radius: 50px; color: transparent; transform: scale(1); }
-  100% { width: 120px; height: 40px; padding: 0.8rem 1.2rem; opacity: 1; background-color: #fff; color: #000; border: 1px solid #000; border-radius: 50px; transform: scale(1); }
+const CircleBackground = styled(Box)`
+  position: absolute;
+  top: 2;
+  left: 0;
+  height: 80%;
+  width: 45px;  /* Start as a circle with a fixed width */
+  background-color: #e0e0e0; /* Light gray color */
+  border-radius: 999px; /* Keep it fully rounded */
+  z-index: 0; /* Places the circle behind the text */
+  
+  /* The animation for the width change */
+  transition: width 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+`;
+
+const ButtonContent = styled(Box)`
+  position: relative;
+  z-index: 1; /* Ensures content is on top of the circle */
+  display: flex;
+  align-items: center;
+  gap: 1.5rem; /* Space between text and arrow */
+  padding: 1rem 1.5rem; /* Inner padding for the text/arrow content */
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+`;
+
+
+const WorksButtonWrapper = styled(MuiLink)`
+  /* Positioning and Layout */
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  /* Remove padding from wrapper, it will be on the content */
+  padding: 0; 
+  border-radius: 999px;
+  
+  /* Important for the effect */
+  overflow: hidden; 
+  
+  /* Text Styles */
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+
+  /* On hover, target the child with className="circle-bg" and expand its width */
+  &:hover .circle-bg {
+    width: 100%;
+  }
+
+  /* ADD THIS BLOCK to slide the text content on hover */
+  &:hover ${ButtonContent} {
+    transform: translateX(8px); /* Adjust this value for more/less movement */
+  }
+`;
+
+// This component holds the text and arrow to ensure they appear above the circle.
+
+const ButtonText = styled(Typography)`
+  font-weight: 600;
+  white-space: nowrap; /* Prevent text from wrapping */
+`;
+
+const ArrowIcon = styled('span')`
+  font-size: 1.5rem;
+  line-height: 1;
 `;
 
 const socialLineReveal = keyframes`
@@ -109,39 +177,62 @@ const RightContent = styled(Box)({
   justifyContent: 'center', // Centers children (Circle, X, Statue) horizontally within RightContent
   alignItems: 'center', // Centers children vertically within RightContent
 });
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
 
 const ScrollDownIndicator = styled(Box)`
   position: absolute;
-  right: 2%;
-  bottom: 10%;
+  right: 3%;
+  bottom: 5%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform: rotate(90deg);
-  transform-origin: bottom right;
-  font-size: 0.9rem;
-  color: #000;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  z-index: 2;
-  opacity: 0;
-  animation: fadeIn 0.5s ease-out forwards 1.5s;
-
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 `;
 
+
+
+// MODIFIED: Arrow now points down naturally
+const VerticalText = styled(Typography)`
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  text-transform: uppercase;
+  color: #333; /* A slightly softer black */
+  font-size: 0.8rem; /* Larger for readability */
+  font-weight: 600;
+  letter-spacing: 4px; /* More space between letters */
+  margin-bottom: 20px; /* Space between text and arrow */
+`;
+
+// ADJUSTED: Arrow created with a cleaner border technique
 const ScrollArrow = styled('span')({
   display: 'block',
-  width: '2px',
-  height: '20px',
-  backgroundColor: '#000',
-  marginTop: '10px',
+  width: '1.5px',
+  height: '30px',
+  backgroundColor: '#333',
   position: 'relative',
-  '&::after': { content: '""', position: 'absolute', width: '8px', height: '2px', backgroundColor: '#000', transform: 'rotate(-45deg)', top: '18px', left: '-3px', },
-  '&::before': { content: '""', position: 'absolute', width: '8px', height: '2px', backgroundColor: '#000', transform: 'rotate(45deg)', top: '18px', left: '-3px', },
+
+  // The arrowhead is now created from the borders of a single pseudo-element
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    left: '50%',
+    bottom: '0',
+    width: '14px', // Controls the size of the arrowhead
+    height: '14px',// Controls the size of the arrowhead
+    
+    // Create two sides of a square with borders
+    borderBottom: '1.5px solid #333',
+    borderRight: '1.5px solid #333',
+    
+    // Rotate the entire square by 45 degrees to make the borders form a 'V'
+    transform: 'translateX(-50%) rotate(45deg)',
+  },
 });
 
-const TextWrapper = styled(Box)({
+
+const TextWrapper = styled('span')({
   position: 'relative', overflow: 'hidden', display: 'inline-block', verticalAlign: 'top',
 });
 
@@ -165,20 +256,27 @@ const CircleElement = styled(Box)`
 `;
 
 const XBarBase = styled(Box)`
-  position: absolute; background-color: #000; height: 10px;
-  left: 50%; top: 50%; transform-origin: center center; /* Rotation origin */
+  position: absolute;
+  background-color: #000;
+  height: 90%;
+  width: 8%;
+  left: 50%;
+  top: 50%;
+  transform-origin: center;
+  /* Start invisible, scaled to 0 height */
+  transform: translate(-50%, -50%) scaleY(0); 
 `;
 
 const XBarOneStyled = styled(XBarBase)`
-  animation: ${xBarInitial} 0.3s ease-out forwards 0.2s,
-             ${xBarFinalRotateScale} 0.7s ease-out forwards 0.4s;
-  transform: translate(-50%, -50%) rotate(-45deg); /* Final rotation */
+  animation: 
+    ${xBarScaleUp} 0.5s ease-out forwards 0.4s,
+    ${xBarRotate(45)} 0.7s ease-in-out forwards 0.9s;
 `;
 
 const XBarTwoStyled = styled(XBarBase)`
-  animation: ${xBarInitial} 0.3s ease-out forwards 0.2s,
-             ${xBarFinalRotateScale} 0.7s ease-out forwards 0.5s;
-  transform: translate(-50%, -50%) rotate(45deg); /* Final rotation */
+  animation:
+    ${xBarScaleUp} 0.5s ease-out forwards 0.4s,
+    ${xBarRotate(-45)} 0.7s ease-in-out forwards 0.9s;
 `;
 
 const StatueImage = styled('img')`
@@ -190,7 +288,7 @@ const StatueImage = styled('img')`
   opacity: 0; /* Starts hidden */
   animation:
     ${statueEntrance} 0.8s ease-out forwards 1.2s, /* Entrance animation */
-    ${statueFloat} 2s ease-in-out infinite alternate 2s; /* Apply float after entrance */
+    ${statueFloat} 3s ease-in-out infinite alternate 2s; /* Float animation */
   z-index: 0;
 `;
 
@@ -202,18 +300,6 @@ const NavAnchor = styled(MuiLink)(({ theme }) => ({
   '&:not(:hover)': { '&::before': { animation: `${socialLineRetract} 0.3s forwards`, }, },
 }));
 
-const WorksButton = styled(Button)`
-  position: relative; overflow: hidden; margin-top: 2rem;
-  padding: 0.8rem 1.2rem; font-size: 0.9rem; font-weight: 500; text-transform: uppercase;
-  border: 1px solid #000; border-radius: 50px; color: #000; background-color: #fff;
-  width: 0; height: 0; opacity: 0; /* Starts collapsed */
-  animation: ${circularButtonReveal} 1.2s ease-out forwards 0.8s;
-  cursor: pointer; display: flex; alignItems: center; justifyContent: center;
-  min-width: 100px; max-width: 160px;
-
-  &::after { content: '→'; margin-left: 0.5rem; display: inline-block; transition: transform 0.3s ease; }
-  &:hover { background-color: #000; color: #fff; '&::after': { transform: translateX(5px); } }
-`;
 
 
 // Helper for Text Reveal (Wrap text in this)
@@ -238,7 +324,7 @@ const HeroSection: React.FC = () => {
   }, []);
 
   return (
-    <HeroContainer>
+    <HeroContainer sx={{ padding: '0% 15% 0 15%'  }}  >
       <LeftContent>
         {/* Main Heading */}
         <Typography variant="h3" component="h1" fontWeight="bold" sx={{mb: 2, fontSize: { xs: '2.5rem', md: '3.8rem' }}}>
@@ -246,31 +332,40 @@ const HeroSection: React.FC = () => {
         </Typography>
 
         {/* Intro Text */}
-        <Typography variant="body1" sx={{mb: 4, color: '#555', fontSize: { xs: '0.9rem', md: '1.1rem' }}}>
+        <Typography variant="body1" component="div" sx={{mb: 4, color: '#555', fontSize: { xs: '0.9rem', md: '1.1rem' }}}>
           <RevealText delay={600}>Hi I'm Mukund Hirpara, a passionate Full Stack Developer </RevealText>
           <br />
           <RevealText delay={700}> & Designer based in the India.</RevealText>
         </Typography>
 
         {/* See My Works Button */}
-        <Link href="/works" passHref legacyBehavior>
-          <WorksButton variant="outlined" sx={{ animationPlayState: animate ? 'running' : 'paused' }}>
-            SEE MY WORKS
-          </WorksButton>
-        </Link>
+          {/* <Box>
+          <WorksButtonWrapper href="/" onClick={(e) => e.preventDefault()}>
+            <CircleBackground className="circle-bg" />
+            <ButtonContent>
+              <ButtonText>
+                SEE MY WORKS
+              </ButtonText>
+              <ArrowIcon>
+                →
+              </ArrowIcon>
+            </ButtonContent>
+          </WorksButtonWrapper>
+          </Box> */}
+        
 
         {/* Social Links */}
         <Box sx={{mt: 8, display: 'flex', gap: 2, color: '#555', fontSize: { xs: '0.8rem', md: '0.9rem' }}}>
-          <Link href="https://dribbble.com" passHref legacyBehavior>
-            <NavAnchor><RevealText delay={1000}>Dribble</RevealText></NavAnchor>
+          <Link href="https://dribbble.com" >
+            <RevealText delay={1000}>Dribble</RevealText>
           </Link>
           <Typography component="span">/</Typography>
-          <Link href="https://behance.net" passHref legacyBehavior>
-            <NavAnchor><RevealText delay={1100}>Behance</RevealText></NavAnchor>
+          <Link href="https://behance.net" >
+            <RevealText delay={1100}>Behance</RevealText>
           </Link>
           <Typography component="span">/</Typography>
-          <Link href="https://github.com" passHref legacyBehavior>
-            <NavAnchor><RevealText delay={1200}>GitHub</RevealText></NavAnchor>
+          <Link href="https://github.com" >
+            <RevealText delay={1200}>GitHub</RevealText>
           </Link>
         </Box>
       </LeftContent>
@@ -282,7 +377,8 @@ const HeroSection: React.FC = () => {
 
         {/* The X Shape (two bars) */}
         <XBarOneStyled sx={{ animationPlayState: animate ? 'running' : 'paused' }} />
-        <XBarTwoStyled sx={{ animationPlayState: animate ? 'running' : 'paused' }} /> {/* FIXED: Uncommented */}
+        <XBarTwoStyled sx={{ animationPlayState: animate ? 'running' : 'paused' }} /> 
+      
 
         {/* Statue Bust */}
         {/* IMPORTANT: Ensure /statue.png exists in your public folder with this exact name and extension */}
@@ -291,7 +387,7 @@ const HeroSection: React.FC = () => {
 
       {/* Scroll Down Indicator */}
       <ScrollDownIndicator sx={{ animationPlayState: animate ? 'running' : 'paused' }}>
-        <Typography variant="caption">Scroll Down</Typography>
+        <VerticalText variant="caption">Scroll Down</VerticalText>
         <ScrollArrow />
       </ScrollDownIndicator>
     </HeroContainer>
@@ -299,3 +395,4 @@ const HeroSection: React.FC = () => {
 };
 
 export default HeroSection;
+
