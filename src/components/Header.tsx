@@ -93,20 +93,20 @@ const Header: React.FC = () => {
 
           {/* Menu items on the right */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Link href="/about" passHref legacyBehavior>
-              <NavAnchor>
+            <Link href="/about" >
+              
                 <MenuItem variant="body1">About</MenuItem>
-              </NavAnchor>
+              
             </Link>
-            <Link href="/works" passHref legacyBehavior>
-              <NavAnchor>
+            <Link href="/works" >
+              
                 <MenuItem variant="body1">Works</MenuItem>
-              </NavAnchor>
+             
             </Link>
-            <Link href="/contact" passHref legacyBehavior>
-              <NavAnchor>
+            <Link href="/contact" >
+              
                 <MenuItem variant="body1">Contact</MenuItem>
-              </NavAnchor>
+              
             </Link>
           </Box>
         </Toolbar>
