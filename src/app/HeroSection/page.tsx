@@ -18,7 +18,6 @@ const xBarScaleUp = keyframes`
   from { transform: translate(-50%, -50%) scaleY(0); }
   to { transform: translate(-50%, -50%) scaleY(1); }
 `;
-// FIXED: Simplified the type for 'rotation' to 'number'
 const xBarRotate = (rotation: number) => keyframes`
   from { transform: translate(-50%, -50%) rotate(0deg); }
   to { transform: translate(-50%, -50%) rotate(${rotation}deg); }
@@ -114,13 +113,34 @@ const StatueImage = styled('img')`
   z-index: 0;
 `;
 
-// FIXED: Changed from MuiLink to Box to prevent nested <a> tags and use modern Next.js Link
+
 const NavAnchor = styled(Box)({
-  color: '#555', textDecoration: 'none', cursor: 'pointer', position: 'relative', overflow: 'hidden',
-  display: 'inline-block', paddingBottom: '2px',
-  '&::before': { content: '""', position: 'absolute', left: 0, bottom: 0, height: '1px', backgroundColor: '#000', width: 0 },
-  '&:hover::before': { animation: `${socialLineReveal} 0.3s forwards` },
-  '&:not(:hover)::before': { animation: `${socialLineRetract} 0.3s forwards` },
+  color: '#555',
+  textDecoration: 'none',
+  cursor: 'pointer',
+  position: 'relative',
+  overflow: 'hidden',
+  display: 'inline-block',
+  paddingBottom: '2px',
+  // ADDED: A transition for the transform property to make the slide smooth
+  transition: 'transform 0.3s ease-out',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    left: 0,
+    bottom: 0,
+    height: '1px',
+    backgroundColor: '#000',
+    width: 0,
+    animation: `${socialLineRetract} 0.3s forwards`
+  },
+  '&:hover': {
+    // ADDED: The transform to move the link to the right on hover
+    transform: 'translateX(5px)',
+    '&::before': {
+      animation: `${socialLineReveal} 0.3s forwards`,
+    }
+  },
 });
 
 const CircleBackground = styled(Box)({
